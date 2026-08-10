@@ -1,6 +1,6 @@
 # 🛡️ Real-Time Phishing & Suspicious Link Detector System
 
-[![CI/CD Pipeline](https://github.com/PolaAdolf/phishing-detector-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/PolaAdolf/phishing-detector-backend/actions)
+[![CI/CD Pipeline](https://github.com/your-username/phishing-detector-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/phishing-detector-backend/actions)
 ![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-2.0-green.svg)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.11+-orange.svg)
@@ -186,19 +186,68 @@ Scans a target URL and returns detailed threat analysis.
 
 ---
 
-## 🐳 Docker Deployment
+## 🐳 Deep-Dive into Docker & Production Deployment
 
-To run the complete production API service inside a lightweight Docker container:
+### 1. What is Docker Used For in This Project?
+Docker packages the entire FastAPI backend, Python 3.10 runtime, TensorFlow libraries, source code (`src/`), and pre-trained 1D-CNN model (`models/`) into an isolated **container**.
 
+**Why use Docker?**
+- **Eliminates "It works on my machine" issues**: Ensures the API runs identically on Windows, Linux servers, macOS, AWS, DigitalOcean, or Azure.
+- **Dependency Isolation**: Prevents conflicts with system-installed Python packages.
+- **Portability**: Allows one-command server deployment without manually setting up virtual environments or installing C++ compilers.
+
+---
+
+### 2. Does Updating Code in Git Automatically Update Docker?
+
+**Short Answer**: A running Docker container uses a **snapshot image** created at build time. When you `git push` new code, the container does **NOT** update automatically by itself.
+
+**How to sync Docker with Git updates**:
+
+#### Option A: Manual 1-Line Command on Your Production Server
+Whenever you pull new code from Git on your server, run:
 ```bash
-# Build and start container in detached mode
+git pull
 docker-compose up --build -d
+```
+> The `--build` flag forces Docker to rebuild the image with your latest Git code and restart the container with zero downtime!
 
-# Check running status
-docker-compose ps
+#### Option B: Automated Continuous Deployment (CD)
+In a cloud deployment setup:
+1. GitHub Actions (`ci.yml`) builds a new Docker image on every `git push`.
+2. A deployment webhook triggers your cloud server (e.g. AWS EC2 or DigitalOcean) to pull the new image and run `docker-compose up -d`.
 
-# Stop container
-docker-compose down
+---
+
+### 3. Step-by-Step Production Deployment Guide
+
+When you are ready to deploy this system live for production:
+
+#### Step 1: Provision a Cloud Server
+Rent a Linux VPS (e.g., AWS EC2, DigitalOcean Droplet, Hetzner, or Render) with Ubuntu 22.04.
+
+#### Step 2: Install Docker on the Server
+```bash
+sudo apt update && sudo apt install -y docker.io docker-compose
+```
+
+#### Step 3: Clone Repository & Run Docker Container
+```bash
+git clone https://github.com/PolaAdolf/Phishing-Detector-Backend.git
+cd Phishing-Detector-Backend
+
+# Start the API service in background
+docker-compose up --build -d
+```
+
+#### Step 4: Update Chrome Extension Production URL
+In `phishing-extension/background.js` and `phishing-extension/popup.js`, change:
+```javascript
+// Local Development:
+const BACKEND_URL = 'http://127.0.0.1:8000/scan';
+
+// Production Live Server:
+const BACKEND_URL = 'https://api.your-domain.com/scan';
 ```
 
 ---
