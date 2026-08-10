@@ -1,6 +1,6 @@
 # 🛡️ Real-Time Phishing & Suspicious Link Detector System
 
-[![CI/CD Pipeline](https://github.com/your-username/phishing-detector-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/phishing-detector-backend/actions)
+[![CI/CD Pipeline](https://github.com/PolaAdolf/phishing-detector-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/phishing-detector-backend/actions)
 ![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-2.0-green.svg)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.11+-orange.svg)
