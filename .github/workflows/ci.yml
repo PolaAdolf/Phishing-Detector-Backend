@@ -26,6 +26,8 @@ jobs:
           pip install pytest httpx
 
       - name: Verify Code Imports & Endpoints
+        env:
+          PYTHONPATH: .
         run: |
           python -c "from app import app; print('FastAPI app imported successfully!')"
 
