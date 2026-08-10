@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   phishing-detector-api:
+    image: polaadolf/phishing-detector-api:latest
     build: .
     container_name: phishing_detector_api
     ports:

@@ -1,11 +1,11 @@
 # 🛡️ Real-Time Phishing & Suspicious Link Detector System
 
-[![CI/CD Pipeline](https://github.com/your-username/phishing-detector-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/phishing-detector-backend/actions)
+[![CI/CD Pipeline](https://github.com/PolaAdolf/Phishing-Detector-Backend/actions/workflows/ci.yml/badge.svg)](https://github.com/PolaAdolf/Phishing-Detector-Backend/actions)
 ![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-2.0-green.svg)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.11+-orange.svg)
 ![Chrome Manifest V3](https://img.shields.io/badge/Chrome_Extension-Manifest_V3-yellow.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
+![Docker Hub](https://img.shields.io/badge/Docker_Hub-polaadolf%2Fphishing--detector--api-blue.svg)
 
 An end-to-end, production-grade cybersecurity solution for real-time URL phishing detection. Built using a **$0-Cost Local Multi-Layer Detection Pipeline** combining a **1D-Convolutional Neural Network (1D-CNN)** deep learning model, rule-based heuristics engine, domain whitelist, and a Chrome Extension (Manifest V3).
 
@@ -51,7 +51,7 @@ An end-to-end, production-grade cybersecurity solution for real-time URL phishin
 phishing-detector-backend/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml             # GitHub Actions CI/CD Pipeline
+│       └── ci.yml             # GitHub Actions CI/CD Pipeline (Builds & Pushes to Docker Hub)
 ├── data/                      # Training Datasets Directory
 │   ├── phishing_site_urls.csv # Dataset 1 (500k+ URLs)
 │   ├── URL dataset.csv        # Dataset 2 (300k+ URLs)
@@ -115,8 +115,8 @@ The model utilizes a **Character-Level 1D Convolutional Neural Network (1D-CNN)*
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/phishing-detector-backend.git
-cd phishing-detector-backend
+git clone https://github.com/PolaAdolf/Phishing-Detector-Backend.git
+cd Phishing-Detector-Backend
 
 # Create and activate virtual environment
 python -m venv venv
@@ -138,7 +138,6 @@ To train or re-train the 1D-CNN model on the datasets inside `data/`:
 ```bash
 python src/train_merged.py
 ```
-*This loads all datasets from `data/`, cleans URLs, trains the 1D-CNN model, and outputs saved artifacts to `models/`.*
 
 ### 4. Running the FastAPI Server
 
@@ -151,127 +150,31 @@ uvicorn app:app --host 127.0.0.1 --port 8000 --reload
 
 ---
 
-## 🔌 API Reference & Usage
+## 🐳 Docker Hub & CI/CD Automated Build Pipeline
 
-### `POST /scan`
-Scans a target URL and returns detailed threat analysis.
+We have automated Docker Hub publishing so that **whenever you push code to GitHub (`git push origin main`), GitHub Actions automatically builds and pushes the updated Docker image to Docker Hub**!
 
-**Request Body**:
-```json
-{
-  "url": "http://g00gle-security-login.top"
-}
+```
+ Developers Push Code ──> GitHub Actions CI Pipeline ──> Auto-Build & Push ──> Docker Hub Image
+ (git push origin main)    (.github/workflows/ci.yml)                          polaadolf/phishing-detector-api:latest
 ```
 
-**Response Payload**:
-```json
-{
-  "url": "http://g00gle-security-login.top",
-  "cleaned_url": "g00gle-security-login.top",
-  "is_phishing": true,
-  "risk_score": 85.0,
-  "status": "DANGER",
-  "reason": "Heuristic Rule: Suspicious pattern match (g[0o]{2}gle)"
-}
-```
+### How to Enable Docker Hub Auto-Push in GitHub:
 
----
+1. Log into your **GitHub Repository** -> **Settings** -> **Secrets and variables** -> **Actions**.
+2. Click **New repository secret** and add:
+   - `DOCKERHUB_USERNAME`: Your Docker Hub username (e.g. `polaadolf`)
+   - `DOCKERHUB_TOKEN`: Your Docker Hub Personal Access Token (created at `hub.docker.com` -> Account Settings -> Security)
 
-## 🧩 Chrome Extension (Manifest V3) Setup
+Now, whenever you push code changes to `main`, GitHub Actions automatically updates your image on Docker Hub!
 
-1. Open Google Chrome and enter `chrome://extensions/` in the address bar.
-2. Toggle on **Developer mode** in the top right corner.
-3. Click **Load unpacked** and choose the `phishing-extension/` directory.
-4. Browse any website! If a phishing link is accessed, the extension will automatically intercept it, change the badge status to `!`, trigger a notification, and show the safety `warning.html` block page.
+### Running Docker Image from Docker Hub:
 
----
-
-## 🐳 Deep-Dive into Docker & Production Deployment
-
-### 1. What is Docker Used For in This Project?
-Docker packages the entire FastAPI backend, Python 3.10 runtime, TensorFlow libraries, source code (`src/`), and pre-trained 1D-CNN model (`models/`) into an isolated **container**.
-
-**Why use Docker?**
-- **Eliminates "It works on my machine" issues**: Ensures the API runs identically on Windows, Linux servers, macOS, AWS, DigitalOcean, or Azure.
-- **Dependency Isolation**: Prevents conflicts with system-installed Python packages.
-- **Portability**: Allows one-command server deployment without manually setting up virtual environments or installing C++ compilers.
-
----
-
-### 2. Does Updating Code in Git Automatically Update Docker?
-
-**Short Answer**: A running Docker container uses a **snapshot image** created at build time. When you `git push` new code, the container does **NOT** update automatically by itself.
-
-**How to sync Docker with Git updates**:
-
-#### Option A: Manual 1-Line Command on Your Production Server
-Whenever you pull new code from Git on your server, run:
 ```bash
-git pull
-docker-compose up --build -d
+# Pull and start latest image from Docker Hub
+docker-compose pull
+docker-compose up -d
 ```
-> The `--build` flag forces Docker to rebuild the image with your latest Git code and restart the container with zero downtime!
-
-#### Option B: Automated Continuous Deployment (CD)
-In a cloud deployment setup:
-1. GitHub Actions (`ci.yml`) builds a new Docker image on every `git push`.
-2. A deployment webhook triggers your cloud server (e.g. AWS EC2 or DigitalOcean) to pull the new image and run `docker-compose up -d`.
-
----
-
-### 3. Step-by-Step Production Deployment Guide
-
-When you are ready to deploy this system live for production:
-
-#### Step 1: Provision a Cloud Server
-Rent a Linux VPS (e.g., AWS EC2, DigitalOcean Droplet, Hetzner, or Render) with Ubuntu 22.04.
-
-#### Step 2: Install Docker on the Server
-```bash
-sudo apt update && sudo apt install -y docker.io docker-compose
-```
-
-#### Step 3: Clone Repository & Run Docker Container
-```bash
-git clone https://github.com/PolaAdolf/Phishing-Detector-Backend.git
-cd Phishing-Detector-Backend
-
-# Start the API service in background
-docker-compose up --build -d
-```
-
-#### Step 4: Update Chrome Extension Production URL
-In `phishing-extension/background.js` and `phishing-extension/popup.js`, change:
-```javascript
-// Local Development:
-const BACKEND_URL = 'http://127.0.0.1:8000/scan';
-
-// Production Live Server:
-const BACKEND_URL = 'https://api.your-domain.com/scan';
-```
-
----
-
-## 🔄 CI/CD Process Explanation (Continuous Integration & Continuous Deployment)
-
-This project includes an automated **GitHub Actions CI/CD Pipeline** defined in `.github/workflows/ci.yml`.
-
-### How the CI/CD Pipeline Works:
-
-```
- Push / Pull Request ──> GitHub Actions Trigger
-                              │
-                              ├──> 1. Environment Setup (Python 3.10)
-                              ├──> 2. Install Dependencies (requirements.txt)
-                              ├──> 3. Verify Code Integrity & Imports
-                              └──> 4. Build Docker Container Image
-```
-
-1. **Trigger**: Executes automatically on every `push` or `pull_request` to `main` / `master` branches.
-2. **Setup Phase**: Provisions a clean Ubuntu container with Python 3.10 environment.
-3. **Dependency Installation**: Upgrades `pip` and installs all project packages.
-4. **Automated Verification**: Verifies application module imports, route registrations, and integrity.
-5. **Docker Build Check**: Builds the production Docker image to ensure deployment readiness before code merging.
 
 ---
 
@@ -280,6 +183,6 @@ This project includes an automated **GitHub Actions CI/CD Pipeline** defined in 
 - [x] All dataset files organized under `data/`
 - [x] Pre-trained model & tokenizer artifacts present under `models/`
 - [x] Clean `.gitignore` excluding bytecode, virtualenvs, and secrets
-- [x] GitHub Actions CI/CD workflow configured under `.github/workflows/ci.yml`
+- [x] GitHub Actions CI/CD workflow configured under `.github/workflows/ci.yml` (With Docker Hub auto-push)
 - [x] Dockerfile and Docker Compose ready for production deployment
 - [x] Comprehensive documentation in README.md
