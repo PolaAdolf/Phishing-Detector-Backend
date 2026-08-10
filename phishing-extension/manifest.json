@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Phishing & Suspicious Link Detector",
+  "version": "2.0.0",
+  "description": "Real-time AI-powered Phishing URL Detector using 1D-CNN and Threat Intelligence.",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "notifications"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Phishing Link Scanner"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["warning.html", "warning.js", "icon.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
